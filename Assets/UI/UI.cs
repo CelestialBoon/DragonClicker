@@ -9,28 +9,58 @@ public class UI : MonoBehaviour
     private int counter = 0;
     private int maxCounter = 20;
     private int points = 0;
+    private bool hasReachedMax = false;
+    private VisualElement root;
+    private Button cockJerkButton;
+    private ProgressBar arousalProgressBar;
 
-    void OnEnable() {
-        VisualElement root = GetComponent<UIDocument>().rootVisualElement;
+    private void Start()
+    {
+        root = GetComponent<UIDocument>().rootVisualElement;
+        cockJerkButton = root.Q<Button>("Button");
+        arousalProgressBar = root.Q<ProgressBar>("ProgressBar");
+    }
 
-        Button button = root.Q<Button>("Button");
+
+    void OnEnable()
+    {
         Label label = root.Q<Label>("Label");
-        ProgressBar progressBar = root.Q<ProgressBar>("ProgressBar");
-        
-        label.text = GetLabelText(0);
-        progressBar.lowValue = 0;
-        progressBar.highValue = maxCounter;
 
-        button.clicked += () => {
+        label.text = GetLabelText(0);
+        arousalProgressBar.lowValue = 0;
+        arousalProgressBar.highValue = maxCounter;
+
+        cockJerkButton.clicked += () =>
+        {
             counter++;
-            progressBar.value = counter;
-            if (counter >= maxCounter) {
-                counter = 0;
+            arousalProgressBar.value = counter;
+            if (counter >= maxCounter)
+            {
                 points += 100;
                 label.text = GetLabelText(points);
             }
         };
     }
+
+    private void Update()
+    {
+        VisualElement root = GetComponent<UIDocument>().rootVisualElement;
+        ProgressBar progressBar = root.Q<ProgressBar>("ProgressBar");
+        if (counter >= maxCounter && hasReachedMax == false)
+        {
+            hasReachedMax = true;
+        }
+        if (hasReachedMax == true)
+        {
+            progressBar.value -= 5 * Time.deltaTime;
+        }
+        if (counter == 0 && hasReachedMax == true)
+        {
+            hasReachedMax = false;
+        }
+
+    }
+
 
     public static string GetLabelText(int points)
     {
