@@ -13,50 +13,51 @@ public class UI : MonoBehaviour
     private VisualElement root;
     private Button cockJerkButton;
     private ProgressBar arousalProgressBar;
+    private Label cumLabel;
 
-    private void Start()
+    void OnEnable()
     {
         root = GetComponent<UIDocument>().rootVisualElement;
         cockJerkButton = root.Q<Button>("Button");
         arousalProgressBar = root.Q<ProgressBar>("ProgressBar");
-    }
+        cumLabel = root.Q<Label>("Label");
 
 
-    void OnEnable()
-    {
-        Label label = root.Q<Label>("Label");
-
-        label.text = GetLabelText(0);
+        cumLabel.text = GetLabelText(0);
         arousalProgressBar.lowValue = 0;
         arousalProgressBar.highValue = maxCounter;
 
         cockJerkButton.clicked += () =>
         {
-            counter++;
-            arousalProgressBar.value = counter;
-            if (counter >= maxCounter)
+            if (hasReachedMax == false)
             {
-                points += 100;
-                label.text = GetLabelText(points);
+                counter++;
+                arousalProgressBar.value = counter;
+                if (counter >= maxCounter)
+                {
+                    points += 100;
+                    cumLabel.text = GetLabelText(points);
+                }
             }
         };
     }
 
     private void Update()
     {
-        VisualElement root = GetComponent<UIDocument>().rootVisualElement;
-        ProgressBar progressBar = root.Q<ProgressBar>("ProgressBar");
+
         if (counter >= maxCounter && hasReachedMax == false)
         {
             hasReachedMax = true;
         }
         if (hasReachedMax == true)
         {
-            progressBar.value -= 5 * Time.deltaTime;
+            arousalProgressBar.value -= 5 * Time.deltaTime;
         }
-        if (counter == 0 && hasReachedMax == true)
+        if (arousalProgressBar.value <= 0 && hasReachedMax == true)
         {
             hasReachedMax = false;
+            arousalProgressBar.value = 0;
+            counter = 0;
         }
 
     }
