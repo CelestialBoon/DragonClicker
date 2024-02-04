@@ -467,3 +467,60 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cecf089792a4dd04a92586cbedd0cab2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gs: {fileID: 1935300355}
+--- !u!1 &1935300354
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1935300356}
+  - component: {fileID: 1935300355}
+  m_Layer: 0
+  m_Name: GameState
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1935300355
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1935300354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a533492ff2863742b7fa5890537b1bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  arousal: 0
+  maxArousal: 0
+  decayArousal: 0
+  fluid: 0
+  buildup: 0
+  ratioBuildup: 0
+  maxBuildup: 0
+  refractoryTime: 0
+  maxRefractoryTime: 0
+  refractorySpeed: 0
+  orgasmTime: 0
+  maxOrgasmTime: 0
+--- !u!4 &1935300356
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1935300354}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
