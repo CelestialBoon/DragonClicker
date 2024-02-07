@@ -468,6 +468,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gs: {fileID: 1935300355}
+  bucketEmpty: {fileID: 2800000, guid: f47348c90793af741a192dcfef9fecfa, type: 3}
+  bucketFull: {fileID: 2800000, guid: 5a8f774027886e64896817521476f9fd, type: 3}
 --- !u!1 &1935300354
 GameObject:
   m_ObjectHideFlags: 0
@@ -504,6 +506,9 @@ MonoBehaviour:
   buildup: 0
   ratioBuildup: 0
   maxBuildup: 0
+  bucket: 0
+  maxBucket: 0
+  bucketState: 0
   refractoryTime: 0
   maxRefractoryTime: 0
   refractorySpeed: 0

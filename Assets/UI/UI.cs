@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.UIElements;
 
 public class UI : MonoBehaviour
@@ -15,9 +16,13 @@ public class UI : MonoBehaviour
 
     private VisualElement root;
     private Button penisButton;
+    private Button bucketButton;
     private ProgressBar arousalProgressBar;
     private ProgressBar buildupProgressBar;
     private Label fluidLabel;
+    [SerializeField] private Texture2D bucketEmpty;
+    [SerializeField] private Texture2D bucketFull;
+
 
     //later when this code grows in length and complexity, the code that handles the actual game state values (instead of the displayed ones) will have to be put elsewhere
 
@@ -25,6 +30,7 @@ public class UI : MonoBehaviour
     {
         root = GetComponent<UIDocument>().rootVisualElement;
         penisButton = root.Q<Button>("PenisButton");
+        bucketButton = root.Q<Button>("Bucket");
         arousalProgressBar = root.Q<ProgressBar>("ArousalProgress");
         buildupProgressBar = root.Q<ProgressBar>("BuildupProgress");
         fluidLabel = root.Q<Label>("FluidLabel");
@@ -56,6 +62,20 @@ public class UI : MonoBehaviour
                 fluidSpeed = (gs.fluid - fluidDisplayed) * 2 / gs.maxOrgasmTime;
             }
         };
+
+        gs.OnBucketStateChanged += (sender, ea) => { ChangeBucketAppearance(ea.state); };
+
+        bucketButton.clicked += () =>
+        {
+            if (gs.bucketState != BucketState.None)
+            {
+                gs.EmptyBucket();
+            }
+            else
+            {
+                gs.UpdateBucket(BucketState.Empty);
+            }
+        };
     }
 
     private void Update()
@@ -78,4 +98,19 @@ public class UI : MonoBehaviour
     {
         return $"Cum: {points}ml";
     }
+
+    private void ChangeBucketAppearance(BucketState state)
+    {
+        bucketButton.style.opacity = state switch
+        {
+            BucketState.None => 0,
+            _ => 1
+        };
+        bucketButton.style.backgroundImage = state switch
+        {
+            BucketState.Full => bucketFull,
+            _ => bucketEmpty,
+        };
+    }
 }
+
