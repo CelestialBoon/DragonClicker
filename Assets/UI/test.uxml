@@ -1,10 +1,13 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="Container" style="top: auto; left: 60%; width: 40%;">
-        <ui:Label text="Cum : 9001" display-tooltip-when-elided="true" name="FluidLabel" style="font-size: 100%; border-top-width: 100px; border-bottom-width: 100px; -unity-text-align: upper-center;" />
+        <ui:Label text="Cum : 9001" display-tooltip-when-elided="true" name="FluidLabel" style="font-size: 64px; border-top-width: 16px; border-bottom-width: 16px; -unity-text-align: middle-center;" />
+        <ui:Label text="Gold : 9001" display-tooltip-when-elided="true" name="GoldLabel" style="font-size: 64px; border-top-width: 16px; border-bottom-width: 16px; -unity-text-align: middle-center;" />
+        <ui:Button text="Sell Cum" display-tooltip-when-elided="true" name="SellCumButton" />
     </ui:VisualElement>
     <ui:VisualElement name="Stage" style="width: 20%; height: 50%; left: 0; top: auto; justify-content: space-around; bottom: 0; align-items: center; position: absolute;">
         <ui:ProgressBar value="0" title="Arousal" name="ArousalProgress" style="height: auto; min-height: 66px; max-height: 90px; flex-grow: 1; width: 80%; align-items: center; justify-content: center; -unity-font-style: bold; flex-basis: 2078%;" />
         <ui:ProgressBar title="Buildup" name="BuildupProgress" style="width: 80%; height: 50px; align-items: center; justify-content: center;" />
         <ui:Button display-tooltip-when-elided="true" name="Bucket" style="background-image: url(&apos;project://database/Assets/throwaway/bucket_empty.png?fileID=2800000&amp;guid=f47348c90793af741a192dcfef9fecfa&amp;type=3#bucket_empty&apos;); flex-grow: 1; width: 80%; height: 50%;" />
     </ui:VisualElement>
+    <ui:Toggle label="Toggle" />
 </ui:UXML>

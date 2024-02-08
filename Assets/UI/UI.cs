@@ -11,15 +11,18 @@ public class UI : MonoBehaviour
 
     private float arousalDisplayed;
     private int fluidDisplayed;
+    private int goldDisplayed;
     private float arousalSpeed = 1;
     private float fluidSpeed = 1;
 
     private VisualElement root;
     private Button penisButton;
     private Button bucketButton;
+    private Button sellButton;
     private ProgressBar arousalProgressBar;
     private ProgressBar buildupProgressBar;
     private Label fluidLabel;
+    private Label goldLabel;
     [SerializeField] private Texture2D bucketEmpty;
     [SerializeField] private Texture2D bucketFull;
 
@@ -34,15 +37,18 @@ public class UI : MonoBehaviour
         arousalProgressBar = root.Q<ProgressBar>("ArousalProgress");
         buildupProgressBar = root.Q<ProgressBar>("BuildupProgress");
         fluidLabel = root.Q<Label>("FluidLabel");
+        goldLabel = root.Q<Label>("GoldLabel");
+        sellButton = root.Q<Button>("SellCumButton");
 
         arousalDisplayed = gs.arousal;
 
         fluidLabel.text = GetFluidLabelText(gs.fluid);
+        goldLabel.text = GetGoldLabelText(gs.gold);
         arousalProgressBar.lowValue = 0;
         arousalProgressBar.highValue = gs.maxArousal;
         buildupProgressBar.lowValue = 0;
         buildupProgressBar.highValue = gs.maxBuildup;
-        
+
         gs.OnAroused.AddListener(UpdateArousalSpeed);
         gs.OnOrgasm.AddListener(UpdateFluidSpeed);
 
@@ -59,16 +65,36 @@ public class UI : MonoBehaviour
                 gs.UpdateBucket(BucketState.Empty);
             }
         };
+
+        sellButton.clicked += () =>
+        {
+            gs.sellCum();
+        };
     }
 
     private void Update()
     {
-        if(gs.fluid != fluidDisplayed)
+        if (gs.fluid > fluidDisplayed)
         {
             fluidDisplayed += Utils.RoundP((gs.fluid - fluidDisplayed) * fluidSpeed * Time.deltaTime);
             fluidLabel.text = GetFluidLabelText(fluidDisplayed);
         }
-        if(! Mathf.Approximately(gs.arousal, arousalDisplayed))
+        else if (gs.fluid < fluidDisplayed)
+        {
+            fluidDisplayed -= Utils.RoundP((gs.fluid - fluidDisplayed) * fluidSpeed * Time.deltaTime);
+            fluidLabel.text = GetFluidLabelText(fluidDisplayed);
+        }
+        if (gs.gold > goldDisplayed)
+        {
+            goldDisplayed += Utils.RoundP((gs.gold - goldDisplayed) * fluidSpeed * Time.deltaTime);
+            goldLabel.text = GetGoldLabelText(goldDisplayed);
+        }
+        else if (gs.gold < goldDisplayed)
+        {
+            goldDisplayed -= Utils.RoundP((gs.gold - goldDisplayed) * fluidSpeed * Time.deltaTime);
+            goldLabel.text = GetGoldLabelText(goldDisplayed);
+        }
+        if (!Mathf.Approximately(gs.arousal, arousalDisplayed))
         {
             arousalDisplayed = Mathf.MoveTowards(arousalDisplayed, gs.arousal, arousalSpeed);
             arousalProgressBar.value = arousalDisplayed;
@@ -89,6 +115,10 @@ public class UI : MonoBehaviour
     public static string GetFluidLabelText(int points)
     {
         return $"Cum: {points}ml";
+    }
+    public static string GetGoldLabelText(int points)
+    {
+        return $"Gold: {points}";
     }
 
     private void ChangeBucketAppearance(BucketState state)

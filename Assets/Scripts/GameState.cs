@@ -29,6 +29,8 @@ public class GameState : MonoBehaviour
     public float orgasmTime;
     public float maxOrgasmTime;
 
+    public int gold;
+    private float goldMultiplier = 1.05f;
     public event EventHandler<OnBucketStateChangedEventArgs> OnBucketStateChanged;
     public class OnBucketStateChangedEventArgs : EventArgs
     {
@@ -58,7 +60,7 @@ public class GameState : MonoBehaviour
         maxBuildup = 100;
 
         maxBucket = 70;
-        
+
         maxRefractoryTime = 5;
         maxOrgasmTime = 3;
 
@@ -68,6 +70,7 @@ public class GameState : MonoBehaviour
         bucket = 0;
         refractoryTime = 0;
         orgasmTime = 0;
+        gold = 0;
     }
 
     private void FixedUpdate() //formulas to later tune For His Pleasure
@@ -76,20 +79,20 @@ public class GameState : MonoBehaviour
 
         buildup = Mathf.Min(maxBuildup, buildup + arousal * ratioBuildup * Mathf.Pow(arousal / maxArousal, 3) * Time.fixedDeltaTime);
 
-        arousal = Mathf.Max(0, arousal - decayArousal * Time.fixedDeltaTime); 
+        arousal = Mathf.Max(0, arousal - decayArousal * Time.fixedDeltaTime);
     }
 
     public void Arouse(float amount, ErogenousType areaType)
     {
-        if(orgasmTime > 0) return;
-        
-        if(buildup >= maxBuildup) amount *= 5;
-        if(refractoryTime > 0) amount *= 0.2f;
-        
+        if (orgasmTime > 0) return;
+
+        if (buildup >= maxBuildup) amount *= 5;
+        if (refractoryTime > 0) amount *= 0.2f;
+
         arousal += amount;
         OnAroused.Invoke(amount);
-        
-        if(arousal > maxArousal) StartCoroutine(Orgasm());
+
+        if (arousal > maxArousal) StartCoroutine(Orgasm());
     }
 
     internal void EmptyBucket()
@@ -100,7 +103,7 @@ public class GameState : MonoBehaviour
     }
     internal void UpdateBucket(BucketState state)
     {
-        if(bucketState != state)
+        if (bucketState != state)
         {
             bucketState = state;
             OnBucketStateChanged?.Invoke(this, new OnBucketStateChangedEventArgs { state = state });
@@ -111,7 +114,7 @@ public class GameState : MonoBehaviour
     {
         OnOrgasm.Invoke();
         var halfOrgasmTime = maxOrgasmTime * 0.5f;
-        
+
         refractorySpeed = maxArousal / maxRefractoryTime;
         ;
         float emptyingSpeed = maxBuildup / halfOrgasmTime;
@@ -121,10 +124,10 @@ public class GameState : MonoBehaviour
             if (buildup > 0)
             {
                 buildup -= emptyingPerTick;
-                if(bucket < maxBucket)
+                if (bucket < maxBucket)
                 {
                     bucket = Mathf.Min(maxBucket, bucket + emptyingPerTick);
-                    if(bucket == maxBucket)
+                    if (bucket == maxBucket)
                     {
                         UpdateBucket(BucketState.Full);
                     }
@@ -143,9 +146,9 @@ public class GameState : MonoBehaviour
 
     internal IEnumerator RefractoryPeriod()
     {
-        for(refractoryTime = maxRefractoryTime; refractoryTime > 0; refractoryTime -= tick)
+        for (refractoryTime = maxRefractoryTime; refractoryTime > 0; refractoryTime -= tick)
         {
-            if(arousal > 0)
+            if (arousal > 0)
             {
                 arousal -= refractorySpeed * tick;
             }
@@ -153,9 +156,16 @@ public class GameState : MonoBehaviour
         }
         refractorySpeed = 0;
     }
+
+    internal void sellCum()
+    {
+        gold += Mathf.RoundToInt(fluid * goldMultiplier);
+        fluid = 0;
+    }
+
 }
 
 public enum BucketState { None, Empty, Full }
 
 [Serializable]
-public class OnArousedEvent : UnityEvent<float> {}
+public class OnArousedEvent : UnityEvent<float> { }
