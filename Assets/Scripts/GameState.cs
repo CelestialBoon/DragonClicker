@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class GameState : MonoBehaviour
 {
@@ -34,6 +35,9 @@ public class GameState : MonoBehaviour
         public BucketState state;
     }
 
+    public UnityEvent OnOrgasm = new UnityEvent();
+    public OnArousedEvent OnAroused = new OnArousedEvent();
+
     private void Awake()
     {
         LoadGameValues();
@@ -47,7 +51,7 @@ public class GameState : MonoBehaviour
 
     private void LoadGameValues() //later this will have to implement savestates
     {
-        maxArousal = 20;
+        maxArousal = 70;
         decayArousal = 1;
 
         ratioBuildup = 0.2f;
@@ -75,6 +79,19 @@ public class GameState : MonoBehaviour
         arousal = Mathf.Max(0, arousal - decayArousal * Time.fixedDeltaTime); 
     }
 
+    public void Arouse(float amount, ErogenousType areaType)
+    {
+        if(orgasmTime > 0) return;
+        
+        if(buildup >= maxBuildup) amount *= 5;
+        if(refractoryTime > 0) amount *= 0.2f;
+        
+        arousal += amount;
+        OnAroused.Invoke(amount);
+        
+        if(arousal > maxArousal) StartCoroutine(Orgasm());
+    }
+
     internal void EmptyBucket()
     {
         fluid += Mathf.RoundToInt(bucket);
@@ -92,6 +109,7 @@ public class GameState : MonoBehaviour
 
     internal IEnumerator Orgasm()
     {
+        OnOrgasm.Invoke();
         var halfOrgasmTime = maxOrgasmTime * 0.5f;
         
         refractorySpeed = maxArousal / maxRefractoryTime;
@@ -138,3 +156,6 @@ public class GameState : MonoBehaviour
 }
 
 public enum BucketState { None, Empty, Full }
+
+[Serializable]
+public class OnArousedEvent : UnityEvent<float> {}

@@ -42,26 +42,9 @@ public class UI : MonoBehaviour
         arousalProgressBar.highValue = gs.maxArousal;
         buildupProgressBar.lowValue = 0;
         buildupProgressBar.highValue = gs.maxBuildup;
-
-        penisButton.clicked += () =>
-        {
-            if (gs.orgasmTime > 0) return;
-            float arousalChange = 1;
-            if (gs.buildup >= gs.maxBuildup) arousalChange *= 5;
-            arousalSpeed = arousalChange * 5;
-            if (gs.refractoryTime > 0)
-            {
-                arousalChange *= 0.2f;
-            }
-
-            gs.arousal += arousalChange;
-
-            if(gs.arousal >= gs.maxArousal) //orgasm time
-            {
-                StartCoroutine(gs.Orgasm());
-                fluidSpeed = (gs.fluid - fluidDisplayed) * 2 / gs.maxOrgasmTime;
-            }
-        };
+        
+        gs.OnAroused.AddListener(UpdateArousalSpeed);
+        gs.OnOrgasm.AddListener(UpdateFluidSpeed);
 
         gs.OnBucketStateChanged += (sender, ea) => { ChangeBucketAppearance(ea.state); };
 
@@ -93,6 +76,15 @@ public class UI : MonoBehaviour
         }
         buildupProgressBar.value = gs.buildup;
         buildupProgressBar.title = $"Buildup: {gs.buildup.ToString("0")}/{gs.maxBuildup}";
+    }
+
+    public void UpdateArousalSpeed(float arousalChange)
+    {
+        arousalSpeed = arousalChange * 5;
+    }
+    public void UpdateFluidSpeed()
+    {
+        fluidSpeed = (gs.fluid - fluidDisplayed) * 2 / gs.maxOrgasmTime;
     }
     public static string GetFluidLabelText(int points)
     {
