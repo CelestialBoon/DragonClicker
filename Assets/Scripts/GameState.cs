@@ -47,7 +47,7 @@ public class GameState : MonoBehaviour
 
     private void LoadGameValues() //later this will have to implement savestates
     {
-        maxArousal = 70;
+        maxArousal = 20;
         decayArousal = 1;
 
         ratioBuildup = 0.2f;
