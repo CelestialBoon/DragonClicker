@@ -14,3 +14,11 @@ public static class Utils
         return res;
     }
 }
+
+namespace System.Runtime.CompilerServices
+{
+    public class IsExternalInit
+    {
+
+    }
+}

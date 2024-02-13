@@ -51,8 +51,7 @@ public class UI : MonoBehaviour
 
         gs.OnAroused.AddListener(UpdateArousalSpeed);
         gs.OnOrgasm.AddListener(UpdateFluidSpeed);
-
-        gs.OnBucketStateChanged += (sender, ea) => { ChangeBucketAppearance(ea.state); };
+        gs.OnBucketStateChanged.AddListener(ChangeBucketAppearance);
 
         bucketButton.clicked += () =>
         {
