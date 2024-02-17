@@ -6,29 +6,30 @@ using UnityEngine.Events;
 
 public class ErogenousArea : MonoBehaviour
 {
-    [SerializeField] private GameState gs;
+    private GameState gs;
+    private GameData gd;
     public ErogenousType type;
     public OnStimulatedEvent OnStimulated = new OnStimulatedEvent();
 
-    private void OnMouseDown()
+    private void Start()
     {
-        Debug.Log("clicked");
-        ClickData cd = gs.GetManualClickData(type);
-        gs.Arouse(GetArousalIncrease(cd));
+        gs = GameObject.Find("/GameState").GetComponent<GameState>();
+        gd = gs.gameData;
+    }
+
+    public void Stimulate(ClickData cd)
+    {
+        gd.Arouse(GetArousalIncrease(cd));
     }
 
     public float GetArousalIncrease(ClickData clickData)
     {
-        ErogenousData ed = gs.GetErogenousData(type);
+        ErogenousData ed = gd.GetErogenousData(type);
         OnStimulated.Invoke(type, clickData);
         float strokeStrength = clickData.parameters.baseStrength * clickData.multiplier;
-        Debug.Log($"StrokeStr: {strokeStrength}");
         float curveCoeff = GetCurveCoeff(ed);
         float timeCoeff = GetTimeCoeff(ed);
         float peakStr = ed.PeakStr;
-        Debug.Log($"CurveCoeff: {curveCoeff}");
-        Debug.Log($"TimeCoeff: {timeCoeff}");
-        Debug.Log($"PeakStr: {peakStr}");
         return strokeStrength * curveCoeff * timeCoeff * peakStr;
     }
 
@@ -43,7 +44,7 @@ public class ErogenousArea : MonoBehaviour
     {
         if(ed.Curve == 0) return 1;
         float sign = ed.Curve > 0 ? 1 : -1;
-        float relativeArousal = gs.arousal / gs.maxArousal;
+        float relativeArousal = gd.arousal / gd.maxArousal;
         float powBase = Mathf.Pow(2, sign * ed.Curve);
         float res = Mathf.Pow(powBase, sign * relativeArousal);
         if (sign > 0) res /= powBase;
@@ -52,9 +53,9 @@ public class ErogenousArea : MonoBehaviour
 }
 public record ErogenousData()
 {
-    public float Curve { get; set;}
-    public float PeakStr { get; set; }
-    public float OptimalFreq { get; set; }
+    public float Curve { get; set; } //curve = basically a modifier of how much the arousal impacts the stimulus - high positive curve means the stimulus only works on high arousal, negative curve means it works best on low arousal, 0 is uniform
+    public float PeakStr { get; set; } //peakStr = maximum result achievable with one stroke
+    public float OptimalFreq { get; set; } //optimalFreq = clicks a second for optimal result
     public float TimeSinceLast { get; set; }
     public ErogenousData(float Curve, float PeakStr, float OptimalFreq, float TimeSinceLast = 0f) : this()
     {
@@ -64,9 +65,6 @@ public record ErogenousData()
         this.TimeSinceLast = TimeSinceLast;
     }
 }
-//curve = basically a modifier of how much the arousal impacts the stimulus - high positive curve means the stimulus only works on high arousal, negative curve means it works best on low arousal, 0 is uniform
-//peakStr = maximum result achievable with one stroke
-//optimalFreq = clicks a second for optimal result
 public enum ErogenousType {COCK, BALLS, ANUS, PAW, BELLY, HEAD, MOUTH, OTHER}
 
 public class OnStimulatedEvent : UnityEvent<ErogenousType, ClickData> { }

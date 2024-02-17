@@ -2,12 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-//using UnityEngine.AddressableAssets;
 using UnityEngine.UIElements;
 
 public class UI : MonoBehaviour
 {
     [SerializeField] GameState gs;
+    private GameData gd;
 
     private float arousalDisplayed;
     private int fluidDisplayed;
@@ -16,9 +16,9 @@ public class UI : MonoBehaviour
     private float fluidSpeed = 1;
 
     private VisualElement root;
-    private Button penisButton;
     private Button bucketButton;
     private Button sellButton;
+    private Button saveButton; //NOTE this is temporary for testing purposes
     private ProgressBar arousalProgressBar;
     private ProgressBar buildupProgressBar;
     private Label fluidLabel;
@@ -31,23 +31,26 @@ public class UI : MonoBehaviour
 
     void Start()
     {
+        gd = gs.gameData;
+
         root = GetComponent<UIDocument>().rootVisualElement;
-        penisButton = root.Q<Button>("PenisButton");
         bucketButton = root.Q<Button>("Bucket");
         arousalProgressBar = root.Q<ProgressBar>("ArousalProgress");
         buildupProgressBar = root.Q<ProgressBar>("BuildupProgress");
         fluidLabel = root.Q<Label>("FluidLabel");
         goldLabel = root.Q<Label>("GoldLabel");
         sellButton = root.Q<Button>("SellCumButton");
+        saveButton = root.Q<Button>("SaveButton");
+         
 
-        arousalDisplayed = gs.arousal;
+        arousalDisplayed = gd.arousal;
 
-        fluidLabel.text = GetFluidLabelText(gs.fluid);
-        goldLabel.text = GetGoldLabelText(gs.gold);
+        fluidLabel.text = GetFluidLabelText(gd.fluid);
+        goldLabel.text = GetGoldLabelText(gd.gold);
         arousalProgressBar.lowValue = 0;
-        arousalProgressBar.highValue = gs.maxArousal;
+        arousalProgressBar.highValue = gd.maxArousal;
         buildupProgressBar.lowValue = 0;
-        buildupProgressBar.highValue = gs.maxBuildup;
+        buildupProgressBar.highValue = gd.maxBuildup;
 
         gs.OnAroused.AddListener(UpdateArousalSpeed);
         gs.OnOrgasm.AddListener(UpdateFluidSpeed);
@@ -55,52 +58,54 @@ public class UI : MonoBehaviour
 
         bucketButton.clicked += () =>
         {
-            if (gs.bucketState != BucketState.None)
+            if (gd.bucketState != BucketState.None)
             {
-                gs.EmptyBucket();
+                gd.EmptyBucket();
             }
             else
             {
-                gs.UpdateBucket(BucketState.Empty);
+                gd.UpdateBucket(BucketState.Empty);
             }
         };
 
         sellButton.clicked += () =>
         {
-            gs.sellCum();
+            gd.sellCum();
         };
+
+        saveButton.clicked += () => gs.SaveGame();
     }
 
     private void Update()
     {
-        if (gs.fluid > fluidDisplayed)
+        if (gd.fluid > fluidDisplayed)
         {
-            fluidDisplayed += Utils.RoundP((gs.fluid - fluidDisplayed) * fluidSpeed * Time.deltaTime);
+            fluidDisplayed += Utils.RoundP((gd.fluid - fluidDisplayed) * fluidSpeed * Time.deltaTime);
             fluidLabel.text = GetFluidLabelText(fluidDisplayed);
         }
-        else if (gs.fluid < fluidDisplayed)
+        else if (gd.fluid < fluidDisplayed)
         {
-            fluidDisplayed -= Utils.RoundP((gs.fluid - fluidDisplayed) * fluidSpeed * Time.deltaTime);
+            fluidDisplayed -= Utils.RoundP((gd.fluid - fluidDisplayed) * fluidSpeed * Time.deltaTime);
             fluidLabel.text = GetFluidLabelText(fluidDisplayed);
         }
-        if (gs.gold > goldDisplayed)
+        if (gd.gold > goldDisplayed)
         {
-            goldDisplayed += Utils.RoundP((gs.gold - goldDisplayed) * fluidSpeed * Time.deltaTime);
+            goldDisplayed += Utils.RoundP((gd.gold - goldDisplayed) * fluidSpeed * Time.deltaTime);
             goldLabel.text = GetGoldLabelText(goldDisplayed);
         }
-        else if (gs.gold < goldDisplayed)
+        else if (gd.gold < goldDisplayed)
         {
-            goldDisplayed -= Utils.RoundP((gs.gold - goldDisplayed) * fluidSpeed * Time.deltaTime);
+            goldDisplayed -= Utils.RoundP((gd.gold - goldDisplayed) * fluidSpeed * Time.deltaTime);
             goldLabel.text = GetGoldLabelText(goldDisplayed);
         }
-        if (!Mathf.Approximately(gs.arousal, arousalDisplayed))
+        if (!Mathf.Approximately(gd.arousal, arousalDisplayed))
         {
-            arousalDisplayed = Mathf.MoveTowards(arousalDisplayed, gs.arousal, arousalSpeed);
+            arousalDisplayed = Mathf.MoveTowards(arousalDisplayed, gd.arousal, arousalSpeed);
             arousalProgressBar.value = arousalDisplayed;
-            arousalProgressBar.title = $"Arousal: {gs.arousal.ToString("0")}/{gs.maxArousal}";
+            arousalProgressBar.title = $"Arousal: {gd.arousal.ToString("0")}/{gd.maxArousal}";
         }
-        buildupProgressBar.value = gs.buildup;
-        buildupProgressBar.title = $"Buildup: {gs.buildup.ToString("0")}/{gs.maxBuildup}";
+        buildupProgressBar.value = gd.buildup;
+        buildupProgressBar.title = $"Buildup: {gd.buildup.ToString("0")}/{gd.maxBuildup}";
     }
 
     public void UpdateArousalSpeed(float arousalChange)
@@ -109,7 +114,7 @@ public class UI : MonoBehaviour
     }
     public void UpdateFluidSpeed()
     {
-        fluidSpeed = (gs.fluid - fluidDisplayed) * 2 / gs.maxOrgasmTime;
+        fluidSpeed = (gd.fluid - fluidDisplayed) * 2 / gd.maxOrgasmTime;
     }
     public static string GetFluidLabelText(int points)
     {

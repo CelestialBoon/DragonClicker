@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEngine;
 
 public static class Utils
@@ -13,8 +15,19 @@ public static class Utils
         }
         return res;
     }
+
+    public static void CopyProperties<T>(this T destination, T source)
+    {
+        foreach (FieldInfo fi in typeof(T).GetFields())
+        {
+            var value = fi.GetValue(source);
+            if (value != null) fi.SetValue(destination, value);
+        }
+    }
+
 }
 
+//this is needed in order for some record niceties
 namespace System.Runtime.CompilerServices
 {
     public class IsExternalInit
