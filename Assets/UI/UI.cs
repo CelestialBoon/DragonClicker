@@ -118,11 +118,11 @@ public class UI : MonoBehaviour
     }
     public static string GetFluidLabelText(int points)
     {
-        return $"Cum: {points}ml";
+        return $"{points}ml";
     }
     public static string GetGoldLabelText(int points)
     {
-        return $"Gold: {points}";
+        return $"${points}";
     }
 
     private void ChangeBucketAppearance(BucketState state)
