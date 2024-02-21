@@ -10,6 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 40893d8026905e4438c006c600456b51, type: 3}
-  m_Name: Base
+  m_Name: Vibrator
   m_EditorClassIdentifier: 
-  baseStrength: 1
+  effectiveness:
+  - 1.5
+  - 1.5
+  - 1.5
+  - 1
+  - 1
+  - 1
+  - 1
+  bought: 0

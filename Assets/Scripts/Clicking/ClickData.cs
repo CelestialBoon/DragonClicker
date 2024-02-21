@@ -6,6 +6,6 @@ using UnityEngine;
 [Serializable]
 public class ClickData
 {
-    public ClickParametersSO parameters;
-    public float multiplier;
+    public float strength;
+    public InstrumentSO instrument;
 }

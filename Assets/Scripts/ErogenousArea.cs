@@ -9,33 +9,48 @@ public class ErogenousArea : MonoBehaviour
     private GameState gs;
     private GameData gd;
     public ErogenousType type;
+    public InstrumentSO koboldInstrument;
     public OnStimulatedEvent OnStimulated = new OnStimulatedEvent();
 
     private void Start()
     {
         gs = GameObject.Find("/GameState").GetComponent<GameState>();
+        gs.erogenousAreas[(int)type] = this;
         gd = gs.gameData;
+    }
+
+    public void StimulateWithKobold(float koboldStrength)
+    {
+        ClickData cd = new ClickData() { strength = koboldStrength, instrument = koboldInstrument };
+        Stimulate(cd);
     }
 
     public void Stimulate(ClickData cd)
     {
-        gd.Arouse(GetArousalIncrease(cd));
+        OnStimulated.Invoke(type, cd);
+        float strength = cd.strength;
+        float effectiveness = cd.instrument?.effectiveness[(int)type] ?? 1;
+        if (effectiveness > 1)
+        {
+            //use the instrument
+            strength *= effectiveness;
+        }
+        gd.Arouse(GetArousalIncrease(strength));
     }
 
-    public float GetArousalIncrease(ClickData clickData)
+    public float GetArousalIncrease(float strokeStrength)
     {
         ErogenousData ed = gd.GetErogenousData(type);
-        OnStimulated.Invoke(type, clickData);
-        float strokeStrength = clickData.parameters.baseStrength * clickData.multiplier;
         float curveCoeff = GetCurveCoeff(ed);
         float timeCoeff = GetTimeCoeff(ed);
         float peakStr = ed.PeakStr;
+        Debug.Log($"Stimulated area {type} with strength {strokeStrength.ToString("n2")} and efficiency {timeCoeff.ToString("n2")}");
         return strokeStrength * curveCoeff * timeCoeff * peakStr;
     }
 
     private float GetTimeCoeff(ErogenousData ed) 
     {
-        float adjustedTimeSquared = Mathf.Pow(ed.TimeSinceLast * ed.OptimalFreq, 2);
+        float adjustedTimeSquared = Mathf.Pow(ed.TimeSinceLast / ed.OptimalTime, 2);
         ed.TimeSinceLast = 0f;
         return adjustedTimeSquared / (1 + adjustedTimeSquared);
     }
@@ -55,16 +70,20 @@ public record ErogenousData()
 {
     public float Curve { get; set; } //curve = basically a modifier of how much the arousal impacts the stimulus - high positive curve means the stimulus only works on high arousal, negative curve means it works best on low arousal, 0 is uniform
     public float PeakStr { get; set; } //peakStr = maximum result achievable with one stroke
-    public float OptimalFreq { get; set; } //optimalFreq = clicks a second for optimal result
+    public float OptimalTime { get; set; } //optimalTime = time between clicks for optimal result
     public float TimeSinceLast { get; set; }
-    public ErogenousData(float Curve, float PeakStr, float OptimalFreq, float TimeSinceLast = 0f) : this()
+    public bool HasKobold { get; set; }
+    public InstrumentSO KoboldInstrument { get; set; }
+    public ErogenousData(float Curve, float PeakStr, float OptimalTime, float TimeSinceLast = 0f, bool HasKobold = false, InstrumentSO KoboldInstrument = null) : this()
     {
         this.Curve = Curve;
         this.PeakStr = PeakStr;
-        this.OptimalFreq = OptimalFreq;
+        this.OptimalTime = OptimalTime;
         this.TimeSinceLast = TimeSinceLast;
+        this.HasKobold = HasKobold;
+        this.KoboldInstrument = KoboldInstrument;
     }
 }
-public enum ErogenousType {COCK, BALLS, ANUS, PAW, BELLY, HEAD, MOUTH, OTHER}
+public enum ErogenousType {COCK, BALLS, ANUS, PAW, BELLY, HEAD, MOUTH}
 
 public class OnStimulatedEvent : UnityEvent<ErogenousType, ClickData> { }

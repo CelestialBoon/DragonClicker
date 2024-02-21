@@ -13,7 +13,9 @@ public class GameState : MonoBehaviour
 {
     [SerializeField] private ClickData clickData; //TODO very temporary, to be reworked once kobolds and tools are introduced
 
-    [NonSerialized] public GameData gameData;
+    public GameData gameData;
+
+    [NonSerialized] public ErogenousArea[] erogenousAreas;
 
     public UnityEvent OnOrgasm = new UnityEvent();
     public UnityEvent OnRefractory = new UnityEvent();
@@ -22,6 +24,11 @@ public class GameState : MonoBehaviour
     public UnityEvent OnGameDataUpdated = new UnityEvent();
 
     private string savePath;
+
+    private void Awake()
+    {
+        erogenousAreas = new ErogenousArea[Enum.GetNames(typeof(ErogenousType)).Length];
+    }
 
     private void Start()
     {
@@ -42,11 +49,21 @@ public class GameState : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        bool leftButton = Input.GetMouseButtonDown(0);
+        bool rightButton = Input.GetMouseButtonDown(1);
+        if (leftButton || rightButton)
         {
             RaycastHit2D hit = Physics2D.GetRayIntersection(Camera.main.ScreenPointToRay(Input.mousePosition));
 
-            if (hit != default) hit.collider.GetComponent<ErogenousArea>()?.Stimulate(clickData);
+            ErogenousArea ea = hit != default ? hit.collider.GetComponent<ErogenousArea>() : null;
+            if(ea != null) {
+                if (leftButton) ea.Stimulate(clickData);
+                else if(rightButton)
+                {
+                    int type = (int)ea.type;
+                    gameData.erogenousDatas[type].HasKobold = !gameData.erogenousDatas[type].HasKobold;
+                }
+            }
         }
     }
 

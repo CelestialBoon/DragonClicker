@@ -91,7 +91,10 @@
         <ui:VisualElement name="Divider" style="position: absolute; height: 11px; width: 480px; top: 203px; left: 0; background-color: rgb(68, 68, 68);" />
         <ui:VisualElement name="Divider" style="position: absolute; height: 11px; width: 480px; top: 556px; left: 0; background-color: rgb(68, 68, 68);" />
         <ui:VisualElement name="Divider" style="position: absolute; height: 11px; width: 480px; top: 841px; left: 0; background-color: rgb(68, 68, 68);" />
-        <ui:VisualElement name="BottomDivider" style="position: absolute; height: 64px; width: 480px; top: 1016px; left: 0; background-color: rgb(68, 68, 68);" />
+        <ui:VisualElement name="BottomDivider" style="position: absolute; height: 64px; width: 480px; top: 1016px; left: 0; background-color: rgb(68, 68, 68);">
+            <ui:Button text="Save" display-tooltip-when-elided="true" name="SaveButton" />
+            <ui:Button text="Reset" display-tooltip-when-elided="true" name="ResetButton" />
+        </ui:VisualElement>
         <ui:Label text="v0.01" display-tooltip-when-elided="true" name="VersionLabel" style="position: absolute; height: 21px; width: 46px; top: 1046px; left: 423px; font-size: 16px; -unity-font-style: italic; color: rgb(255, 255, 255); display: flex;" />
         <ui:Button text="Options" display-tooltip-when-elided="true" name="OptionsButton" style="position: absolute; height: 47px; width: 70px; top: 5px; left: 398px; -unity-background-image-tint-color: rgb(255, 255, 255); -unity-background-scale-mode: stretch-to-fill;" />
     </ui:VisualElement>
@@ -99,7 +102,6 @@
         <ui:ProgressBar value="0" title="Arousal" name="ArousalProgress" style="height: 49px; min-height: 66px; max-height: 90px; flex-grow: 1; width: 191px; align-items: center; justify-content: center; -unity-font-style: bold; flex-basis: 2078%; position: relative; top: 0; left: 0; font-size: 16px;" />
         <ui:ProgressBar title="Buildup" name="BuildupProgress" style="width: 80%; height: 50px; align-items: center; justify-content: center;" />
     </ui:VisualElement>
-    <ui:Button text="Save" display-tooltip-when-elided="true" name="SaveButton" style="height: 45px; position: absolute; top: 8px; left: 1448px; right: 388px; display: none;" />
     <ui:VisualElement name="PopupItem" style="position: absolute; height: 182px; width: 304px; top: 338px; left: 1128px; background-color: rgb(0, 0, 0); border-top-width: 6px; border-right-width: 6px; border-bottom-width: 6px; border-left-width: 6px; border-left-color: rgb(123, 123, 123); border-right-color: rgb(123, 123, 123); border-top-color: rgb(123, 123, 123); border-bottom-color: rgb(123, 123, 123); visibility: visible; display: none;">
         <ui:VisualElement name="Divider" style="position: absolute; height: 2px; width: 291px; top: 76px; left: 0; background-color: rgb(68, 68, 68);" />
         <ui:Label text="Shop Item" display-tooltip-when-elided="true" name="PopupItemLabel" style="font-size: 28px; -unity-text-align: middle-left; width: 269px; position: absolute; top: 7px; left: 11px; -unity-font-style: bold; color: rgb(255, 255, 255); height: 32px; -unity-paragraph-spacing: 24px; -unity-text-outline-width: 0; -unity-text-outline-color: rgb(255, 255, 255);" />

@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections;
 using UnityEngine;
+using System.Linq;
 
 //this class holds the mechanical game data that gets saved and loaded
 //as well as the mechanics to update it
+[Serializable]
 public class GameData
 {
     public ErogenousData[] erogenousDatas;
 
     public float clickStrength;
     public float koboldStrength;
+    public float koboldDelay;
+    public int koboldNum;
 
     public float arousal;
     public float maxArousal;
@@ -44,6 +48,8 @@ public class GameData
 
         clickStrength = 1;
         koboldStrength = 0.3f;
+        koboldDelay = 3f;
+        koboldNum = 0;
 
         maxArousal = 100;
         decayArousal = 3;
@@ -60,8 +66,13 @@ public class GameData
         goldMultiplier = 1.05f;
 
         erogenousDatas = new ErogenousData[Enum.GetNames(typeof(ErogenousType)).Length]; //TODO compile full list of zones
-        erogenousDatas[(int)ErogenousType.COCK] = new ErogenousData(2, 5, 5f);
-        erogenousDatas[(int)ErogenousType.MOUTH] = new ErogenousData(-1f, 7, 2f);
+        erogenousDatas[(int)ErogenousType.COCK] = new ErogenousData(2, 5, 0.2f);
+        erogenousDatas[(int)ErogenousType.BALLS] = new ErogenousData(0, 5, 0.2f);
+        erogenousDatas[(int)ErogenousType.ANUS] = new ErogenousData(0, 5, 0.2f);
+        erogenousDatas[(int)ErogenousType.PAW] = new ErogenousData(0, 5, 0.2f);
+        erogenousDatas[(int)ErogenousType.BELLY] = new ErogenousData(0, 5, 0.2f);
+        erogenousDatas[(int)ErogenousType.HEAD] = new ErogenousData(0, 5, 0.2f);
+        erogenousDatas[(int)ErogenousType.MOUTH] = new ErogenousData(-1, 12, 0.7f);
 
         arousal = 0;
         fluid = 0;
@@ -85,6 +96,13 @@ public class GameData
     public void FixedUpdate_() //formulas to later tune For His Pleasure
     {
         if (orgasmTime > 0 || refractoryTime > 0) return;
+
+        for(int i = 0; i<erogenousDatas.Length; i++) {
+            ErogenousData ed = erogenousDatas[i];
+            if(ed.HasKobold && ed.TimeSinceLast > ed.OptimalTime * koboldDelay) {
+                gs.erogenousAreas[i].StimulateWithKobold(koboldStrength);
+            }
+        }
 
         buildup = Mathf.Min(maxBuildup, buildup + arousal * ratioBuildup * Mathf.Pow(arousal / maxArousal, 2) * Time.fixedDeltaTime);
 

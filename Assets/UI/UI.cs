@@ -19,6 +19,7 @@ public class UI : MonoBehaviour
     private Button bucketButton;
     private Button sellButton;
     private Button saveButton; //NOTE this is temporary for testing purposes
+    private Button resetButton; //NOTE this is temporary for testing purposes
     private ProgressBar arousalProgressBar;
     private ProgressBar buildupProgressBar;
     private Label fluidLabel;
@@ -41,7 +42,8 @@ public class UI : MonoBehaviour
         goldLabel = root.Q<Label>("GoldLabel");
         sellButton = root.Q<Button>("SellCumButton");
         saveButton = root.Q<Button>("SaveButton");
-         
+        resetButton = root.Q<Button>("ResetButton");
+
 
         arousalDisplayed = gd.arousal;
 
@@ -74,6 +76,7 @@ public class UI : MonoBehaviour
         };
 
         saveButton.clicked += () => gs.SaveGame();
+        resetButton.clicked += () => gs.gameData.Initialize(gs);
     }
 
     private void Update()
