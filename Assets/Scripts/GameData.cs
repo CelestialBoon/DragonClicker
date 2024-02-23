@@ -23,6 +23,7 @@ public class GameData
 
     public float buildup;
     public float ratioBuildup;
+    public float passiveBuildup;
     public float refractoryBuildup;
     public float maxBuildup;
 
@@ -52,9 +53,10 @@ public class GameData
         koboldNum = 0;
 
         maxArousal = 100;
-        decayArousal = 3;
+        decayArousal = 2;
 
         ratioBuildup = 0.1f;
+        passiveBuildup = 0.1f;
         refractoryBuildup = 20f;
         maxBuildup = 100;
 
@@ -66,13 +68,13 @@ public class GameData
         goldMultiplier = 1.05f;
 
         erogenousDatas = new ErogenousData[Enum.GetNames(typeof(ErogenousType)).Length]; //TODO compile full list of zones
-        erogenousDatas[(int)ErogenousType.COCK] = new ErogenousData(2, 5, 0.2f);
-        erogenousDatas[(int)ErogenousType.BALLS] = new ErogenousData(0, 5, 0.2f);
-        erogenousDatas[(int)ErogenousType.ANUS] = new ErogenousData(0, 5, 0.2f);
-        erogenousDatas[(int)ErogenousType.PAW] = new ErogenousData(0, 5, 0.2f);
-        erogenousDatas[(int)ErogenousType.BELLY] = new ErogenousData(0, 5, 0.2f);
-        erogenousDatas[(int)ErogenousType.HEAD] = new ErogenousData(0, 5, 0.2f);
-        erogenousDatas[(int)ErogenousType.MOUTH] = new ErogenousData(-1, 12, 0.7f);
+        erogenousDatas[(int)ErogenousType.COCK] = new ErogenousData(1.5f, 3, 0.2f);
+        erogenousDatas[(int)ErogenousType.BALLS] = new ErogenousData(0.5f, 5, 0.8f);
+        erogenousDatas[(int)ErogenousType.ANUS] = new ErogenousData(1f, 5, 0.6f);
+        erogenousDatas[(int)ErogenousType.PAW] = new ErogenousData(-0.5f, 5, 1f);
+        erogenousDatas[(int)ErogenousType.WING] = new ErogenousData(-1f, 10, 3f);
+        erogenousDatas[(int)ErogenousType.HEAD] = new ErogenousData(0f, 2, 0.5f);
+        erogenousDatas[(int)ErogenousType.MOUTH] = new ErogenousData(-1, 5, 0.7f);
 
         arousal = 0;
         fluid = 0;
@@ -104,7 +106,7 @@ public class GameData
             }
         }
 
-        buildup = Mathf.Min(maxBuildup, buildup + arousal * ratioBuildup * Mathf.Pow(arousal / maxArousal, 2) * Time.fixedDeltaTime);
+        buildup = Mathf.Min(maxBuildup, buildup + (passiveBuildup + arousal * ratioBuildup * Mathf.Pow(arousal / maxArousal, 2)) * Time.fixedDeltaTime);
 
         arousal = Mathf.Max(0, arousal - decayArousal * Time.fixedDeltaTime);
 

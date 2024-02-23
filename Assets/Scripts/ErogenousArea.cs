@@ -44,8 +44,9 @@ public class ErogenousArea : MonoBehaviour
         float curveCoeff = GetCurveCoeff(ed);
         float timeCoeff = GetTimeCoeff(ed);
         float peakStr = ed.PeakStr;
-        Debug.Log($"Stimulated area {type} with strength {strokeStrength.ToString("n2")} and efficiency {timeCoeff.ToString("n2")}");
-        return strokeStrength * curveCoeff * timeCoeff * peakStr;
+        float totalStrength = strokeStrength * curveCoeff * timeCoeff * peakStr;
+        Debug.Log($"Stimulated area {type} with efficiency {timeCoeff:n2}, total strength {totalStrength:n2}");
+        return strokeStrength;
     }
 
     private float GetTimeCoeff(ErogenousData ed) 
@@ -84,6 +85,6 @@ public record ErogenousData()
         this.KoboldInstrument = KoboldInstrument;
     }
 }
-public enum ErogenousType {COCK, BALLS, ANUS, PAW, BELLY, HEAD, MOUTH}
+public enum ErogenousType {COCK, BALLS, ANUS, PAW, WING, HEAD, MOUTH}
 
 public class OnStimulatedEvent : UnityEvent<ErogenousType, ClickData> { }
