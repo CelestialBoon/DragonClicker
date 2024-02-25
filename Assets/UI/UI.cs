@@ -80,6 +80,7 @@ public class UI : MonoBehaviour
         {
             if (gd.gold >= gd.bucketUpgradePrice)
             {
+                gd.gold -= gd.bucketUpgradePrice;
                 increaseBucketStorage();
             }
         };
