@@ -41,6 +41,9 @@ public class GameData
     public int gold;
     public float goldMultiplier;
 
+    public int bucketUpgradePrice;
+    public int bucketUpgradeLevel;
+
     public GameState gs;
 
     public GameData Initialize(GameState gameState)
@@ -84,6 +87,9 @@ public class GameData
         orgasmTime = 0;
         gold = 0;
 
+        bucketUpgradePrice = 100;
+        bucketUpgradeLevel = 1;
+
         bucketState = BucketState.Empty;
         return this;
     }
@@ -99,9 +105,11 @@ public class GameData
     {
         if (orgasmTime > 0 || refractoryTime > 0) return;
 
-        for(int i = 0; i<erogenousDatas.Length; i++) {
+        for (int i = 0; i < erogenousDatas.Length; i++)
+        {
             ErogenousData ed = erogenousDatas[i];
-            if(ed.HasKobold && ed.TimeSinceLast > ed.OptimalTime * koboldDelay) {
+            if (ed.HasKobold && ed.TimeSinceLast > ed.OptimalTime * koboldDelay)
+            {
                 gs.erogenousAreas[i].StimulateWithKobold(koboldStrength);
             }
         }
@@ -195,7 +203,7 @@ public class GameData
             if (arousal > 0)
             {
                 arousal -= refractorySpeed * Time.fixedDeltaTime;
-            } 
+            }
             yield return new WaitForFixedUpdate();
         }
         refractorySpeed = 0;
@@ -210,5 +218,11 @@ public class GameData
     internal ErogenousData GetErogenousData(ErogenousType type)
     {
         return erogenousDatas[(int)type];
+    }
+
+    public void upgradeBucket()
+    {
+        maxBucket += 30;
+        bucketUpgradeLevel += 1;
     }
 }

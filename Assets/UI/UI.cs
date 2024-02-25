@@ -20,10 +20,13 @@ public class UI : MonoBehaviour
     private Button sellButton;
     private Button saveButton; //NOTE this is temporary for testing purposes
     private Button resetButton; //NOTE this is temporary for testing purposes
+    private Button bucketUpgradeButton;
     private ProgressBar arousalProgressBar;
     private ProgressBar buildupProgressBar;
     private Label fluidLabel;
     private Label goldLabel;
+    private Label bucketUpgradeLevel;
+    private Label bucketUpgradeCost;
     [SerializeField] private Texture2D bucketEmpty;
     [SerializeField] private Texture2D bucketFull;
 
@@ -44,6 +47,9 @@ public class UI : MonoBehaviour
         saveButton = root.Q<Button>("SaveButton");
         resetButton = root.Q<Button>("ResetButton");
 
+        bucketUpgradeButton = root.Q<Button>("BucketUpgradeButton");
+        bucketUpgradeLevel = root.Q<Label>("BucketUpgradeLevel");
+        bucketUpgradeCost = root.Q<Label>("BucketUpgradePrice");
 
         arousalDisplayed = gd.arousal;
 
@@ -67,6 +73,14 @@ public class UI : MonoBehaviour
             else
             {
                 gd.UpdateBucket(BucketState.Empty);
+            }
+        };
+
+        bucketUpgradeButton.clicked += () =>
+        {
+            if (gd.gold >= gd.bucketUpgradePrice)
+            {
+                increaseBucketStorage();
             }
         };
 
@@ -109,6 +123,15 @@ public class UI : MonoBehaviour
         }
         buildupProgressBar.value = gd.buildup;
         buildupProgressBar.title = $"Buildup: {gd.buildup.ToString("0")}/{gd.maxBuildup}";
+
+        bucketUpgradeLevel.text = $"LVL {gd.bucketUpgradeLevel}";
+        bucketUpgradeCost.text = $"{gd.bucketUpgradePrice}";
+    }
+
+    private void increaseBucketStorage()
+    {
+        gd.upgradeBucket();
+        gd.bucketUpgradePrice = Mathf.RoundToInt((float)gd.bucketUpgradePrice * 1.5f) + 100;
     }
 
     public void UpdateArousalSpeed(float arousalChange)
