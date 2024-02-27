@@ -149,7 +149,7 @@ public class UI : MonoBehaviour
     }
     public static string GetGoldLabelText(int points)
     {
-        return $"${points}";
+        return $"{points}";
     }
 
     private void ChangeBucketAppearance(BucketState state)

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.30692244, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1199,6 +1199,7 @@ MonoBehaviour:
     fluid: 0
     buildup: 0
     ratioBuildup: 0
+    passiveBuildup: 0
     refractoryBuildup: 0
     maxBuildup: 0
     bucket: 0
@@ -1211,6 +1212,8 @@ MonoBehaviour:
     maxOrgasmTime: 0
     gold: 0
     goldMultiplier: 0
+    bucketUpgradePrice: 0
+    bucketUpgradeLevel: 0
     gs: {fileID: 0}
   OnOrgasm:
     m_PersistentCalls:
