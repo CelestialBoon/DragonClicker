@@ -17,7 +17,7 @@ public class GameData
     public float koboldStrength = 0.4f;
     public float koboldDelay = 3f;
     public int koboldsBusy = 0;
-    public int koboldsMax = 1;
+    public int koboldsMax = 0;
     public bool canKoboldsUseInstruments = false;
 
     public bool[] koboldsToEZ;
@@ -32,9 +32,9 @@ public class GameData
     public int cumQuality = 0;
 
     public float buildup = 0;
-    public float arousal2Buildup = 10;
-    public float ratioBuildup = 9f;
-    public float passiveBuildup = 2f;
+    public float arousal2Buildup = 25;
+    public float ratioBuildup = 4f;
+    public float passiveBuildup = 1.5f;
     public float refractoryBuildup = 10f;
     public float maxBuildup = 100;
 
@@ -60,13 +60,13 @@ public class GameData
 
         int erogenousCount = Enum.GetNames(typeof(ErogenousType)).Length;
         erogenousDatas = new ErogenousData[erogenousCount];
-        erogenousDatas[(int)ErogenousType.COCK] = new ErogenousData(1.5f, 3, 0.2f);
-        erogenousDatas[(int)ErogenousType.BALLS] = new ErogenousData(0.5f, 5, 0.8f);
-        erogenousDatas[(int)ErogenousType.ANUS] = new ErogenousData(1f, 5, 0.6f);
-        erogenousDatas[(int)ErogenousType.PAW] = new ErogenousData(-0.5f, 5, 1f);
-        erogenousDatas[(int)ErogenousType.WING] = new ErogenousData(-1f, 10, 3f);
-        erogenousDatas[(int)ErogenousType.HEAD] = new ErogenousData(0f, 2, 0.5f);
-        erogenousDatas[(int)ErogenousType.MOUTH] = new ErogenousData(-1, 5, 0.7f);
+        erogenousDatas[(int)ErogenousType.COCK] = new ErogenousData(1.5f, 2, 0.2f);
+        erogenousDatas[(int)ErogenousType.BALLS] = new ErogenousData(0.5f, 3, 0.6f);
+        erogenousDatas[(int)ErogenousType.ANUS] = new ErogenousData(1f, 3, 0.5f);
+        erogenousDatas[(int)ErogenousType.PAW] = new ErogenousData(-1.5f, 4, 1f);
+        erogenousDatas[(int)ErogenousType.WING] = new ErogenousData(-2f, 7, 2f);
+        erogenousDatas[(int)ErogenousType.HEAD] = new ErogenousData(-0.5f, 3, 0.4f);
+        erogenousDatas[(int)ErogenousType.MOUTH] = new ErogenousData(-1, 4, 0.7f);
 
         koboldsToEZ = new bool[erogenousCount];
         instrumentToEz = new string[erogenousCount];

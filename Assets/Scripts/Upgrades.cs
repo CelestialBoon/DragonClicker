@@ -25,7 +25,7 @@ public class Upgrades : MonoBehaviour
             },
             otherRequirements = NoRequirements,
             baseMoneyCost = 50,
-            moneyMultiplier = 3f,
+            moneyMultiplier = 4f,
         }); 
         AddUpgrade(new Upgrade {
             maxTier = 6,
@@ -48,8 +48,8 @@ public class Upgrades : MonoBehaviour
             effect = (u, gd) => {
                 gd.koboldDelay--;
             },
-            otherRequirements = NoRequirements,
-            baseMoneyCost = 100,
+            otherRequirements = HasKobolds,
+            baseMoneyCost = 200,
             moneyMultiplier = 10f,
         });
         AddUpgrade(new Upgrade {
@@ -60,8 +60,8 @@ public class Upgrades : MonoBehaviour
             effect = (u, gd) => {
                 gd.koboldStrength += 0.3f;
             },
-            otherRequirements = NoRequirements,
-            baseMoneyCost = 100,
+            otherRequirements = HasKobolds,
+            baseMoneyCost = 250,
             moneyMultiplier = 10f,
         });
         AddUpgrade(new Upgrade {
@@ -73,7 +73,7 @@ public class Upgrades : MonoBehaviour
                 gd.clickStrength += 0.3f;
             },
             otherRequirements = NoRequirements,
-            baseMoneyCost = 100,
+            baseMoneyCost = 700,
             moneyMultiplier = 5f,
         });
         AddUpgrade(new Upgrade
@@ -84,6 +84,7 @@ public class Upgrades : MonoBehaviour
             iconName = "upgrade",
             effect = (u, gd) => {
                 gd.maxArousal *= 3;
+                gd.decayArousal *= 3;
                 gd.cumQuality++;
             },
             otherRequirements = NoRequirements,
@@ -98,7 +99,7 @@ public class Upgrades : MonoBehaviour
             iconName = "vibrator",
             effect = UnlockInstrument,
             otherRequirements = NoRequirements,
-            baseMoneyCost = 100,
+            baseMoneyCost = 300,
         }); 
         AddUpgrade(new Upgrade {
             maxTier = 1,
@@ -108,11 +109,12 @@ public class Upgrades : MonoBehaviour
             iconName = "dildo",
             effect = UnlockInstrument,
             otherRequirements = NoRequirements,
-            baseMoneyCost = 100,
+            baseMoneyCost = 450,
         });
     }
 
     private bool NoRequirements(GameData _) { return true; }
+    private bool HasKobolds (GameData gd) { return gd.koboldsMax > 0; }
 
     private void UnlockInstrument(Upgrade u, GameData gd)
     {
@@ -121,7 +123,6 @@ public class Upgrades : MonoBehaviour
 
     private void AddUpgrade(Upgrade u)
     {
-        u.UpdateCosts();
         u.index = upgradeList.Count;
         upgradeList.Add(u);
         nameDict.Add(u.codeName, u.index);
@@ -166,7 +167,7 @@ public class Upgrade
 
     public bool IsNearRequirements(GameData gd)
     {
-        return (gd.gold >= nextGoldCost * 0.6f) && (!IsCumCost() || gd.cumQuality >= nextCumQuality);
+        return (gd.gold >= nextGoldCost * 0.7f - 30) && (!IsCumCost() || gd.cumQuality >= nextCumQuality);
     }
 
     public bool IsEnoughGoldRequirements(GameData gd)

@@ -12,12 +12,14 @@ public class ErogenousArea : MonoBehaviour
     public InstrumentSO koboldInstrument;
     public GameObject koboldAnimation;
     public Transform textAnchor;
+    public float lastTimeCoeff;
 
     private void Start()
     {
         gs = GameObject.Find("/GameState").GetComponent<GameState>();
         gs.erogenousAreas[(int)type] = this;
         gd = gs.gameData;
+        if (koboldAnimation != null) koboldAnimation.SetActive(false);
     }
 
     public void StimulateWithKobold()
@@ -48,6 +50,7 @@ public class ErogenousArea : MonoBehaviour
         ErogenousData ed = gd.GetErogenousData(type);
         float curveCoeff = GetCurveCoeff(ed);
         float timeCoeff = GetTimeCoeff(ed);
+        lastTimeCoeff = timeCoeff;
         float peakStr = ed.PeakStr;
         float totalStrength = strokeStrength * curveCoeff * timeCoeff * peakStr;
         Debug.Log($"Stimulated area {type} with efficiency {timeCoeff:n2}, total strength {totalStrength:n2}");

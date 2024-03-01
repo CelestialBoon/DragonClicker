@@ -25,7 +25,7 @@ public class GameState : MonoBehaviour
     public Dictionary<string, Sprite> iconsDict;
 
     public List<InstrumentSO> instrumentsList;
-    public Dictionary<string, InstrumentSO> instrumentsDict; //this one is filled in the inspector
+    public Dictionary<string, InstrumentSO> instrumentsDict; 
     public string instrumentInHand;
     public TMPro.TextMeshPro counterTemplate;
 
@@ -85,18 +85,56 @@ public class GameState : MonoBehaviour
         go.transform.localPosition = Vector3.zero;
         TextMeshPro text = go.GetComponent<TextMeshPro>();
         text.text = $"+{strength:n1}";
+        StartCoroutine(FloatText(go, ea));
+    }
+
+    IEnumerator FloatText(GameObject textGO, ErogenousArea ea)
+    {
+        float height = 0.7f;
+        float progress = 0;
+        float speed = height * 0.7f / gameData.erogenousDatas[(int)ea.type].OptimalTime;
+        float timeCoeff = ea.lastTimeCoeff;
+        byte red = 0, blue = 0, green = 0;
+        green = (byte)Math.Min(255, timeCoeff * 510);
+        if (timeCoeff <= 0.5f) red = (byte)(255 - timeCoeff * 510);
+        else red = (byte)(timeCoeff * 510 - 255);
+
+        byte opacity = 255;
+        TextMeshPro text = textGO.GetComponent<TextMeshPro>();
+        yield return new WaitForEndOfFrame();
+        while(progress < height)
+        {
+            opacity = (byte)(255 - Mathf.FloorToInt(progress / height * 255));
+            text.faceColor = new Color32(red, green, blue, opacity);
+            var movement = speed * Time.deltaTime;
+            progress += movement;
+            textGO.transform.position += new Vector3(0, movement, 0);
+            yield return new WaitForEndOfFrame();
+        }
+        Destroy(textGO);
     }
 
     void Update()
     {
-        bool leftButton = Input.GetMouseButtonDown(0);
-        bool rightButton = Input.GetMouseButtonDown(1);
-        if (leftButton || rightButton)
-        {
-            RaycastHit2D hit = Physics2D.GetRayIntersection(Camera.main.ScreenPointToRay(Input.mousePosition));
+        RaycastHit2D hit = Physics2D.GetRayIntersection(Camera.main.ScreenPointToRay(Input.mousePosition));
 
-            ErogenousArea ea = hit != default ? hit.collider.GetComponent<ErogenousArea>() : null;
-            if(ea != null) {
+        ErogenousArea ea = hit != default ? hit.collider.GetComponent<ErogenousArea>() : null;
+        if(string.IsNullOrEmpty(instrumentInHand)) {
+            if(ea != null)
+            {
+                var instrument = instrumentsDict["handHovering"];
+                Cursor.SetCursor(instrument.cursor, new Vector2(16, 6), CursorMode.Auto);
+            } else
+            {
+                var instrument = instrumentsDict["handIdle"];
+                Cursor.SetCursor(instrument.cursor, new Vector2(16, 6), CursorMode.Auto);
+            }
+        }
+        if(ea != null) {
+            bool leftButton = Input.GetMouseButtonDown(0);
+            bool rightButton = Input.GetMouseButtonDown(1);
+            if (leftButton || rightButton)
+            {
                 if (leftButton) ea.Stimulate(gameData.clickStrength, GetInstrumentInHand());
                 else if(rightButton)
                 {
@@ -141,7 +179,8 @@ public class GameState : MonoBehaviour
     {
         if (instrumentInHand == instrName || string.IsNullOrEmpty(instrName)) {
             instrumentInHand = null;
-            Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+            var instrument = instrumentsDict["handIdle"];
+            Cursor.SetCursor(instrument.cursor, new Vector2(16,6), CursorMode.Auto);
         } else {
             instrumentInHand = instrName;
             var instrument = instrumentsDict[instrName];

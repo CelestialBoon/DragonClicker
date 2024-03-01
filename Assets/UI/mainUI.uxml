@@ -3,7 +3,7 @@
     <ui:Template name="InstrumentButton" src="project://database/Assets/UI/InstrumentButton.uxml?fileID=9197481963319205126&amp;guid=7f6f190c1adc6e74db9369ea439294f3&amp;type=3#InstrumentButton" />
     <ui:Template name="UpgradeBought" src="project://database/Assets/UI/UpgradeBought.uxml?fileID=9197481963319205126&amp;guid=06b8e6f8ba5b5fd4291b75bdd2044c51&amp;type=3#UpgradeBought" />
     <ui:VisualElement name="RSideMenu" style="left: 75%; height: 1080px; width: 480px; position: absolute; top: 0; justify-content: flex-start; flex-direction: column; align-items: stretch; -unity-background-scale-mode: stretch-to-fill; border-bottom-left-radius: 20px; border-top-left-radius: 20px; background-color: rgb(17, 12, 12);">
-        <ui:VisualElement name="TopDivider" style="position: absolute; height: 64px; width: 480px; top: 0; left: 0; background-color: rgb(51, 51, 51); border-top-left-radius: 20px;">
+        <ui:VisualElement name="TopDivider" style="position: absolute; height: 64px; width: 480px; top: 0; left: 0; background-color: rgb(51, 51, 51); border-top-left-radius: 20px; display: none;">
             <ui:Button text="Options" display-tooltip-when-elided="true" name="OptionsButton" style="position: absolute; top: 15px; left: 380px; -unity-background-image-tint-color: rgb(255, 255, 255); -unity-background-scale-mode: stretch-to-fill; width: 64px; height: 35px; color: rgb(97, 97, 97);" />
             <ui:Button text="Save" display-tooltip-when-elided="true" name="SaveButton" style="position: absolute; top: 15px; left: 31px; height: 35px; color: rgb(96, 96, 96); right: 380px;" />
             <ui:Button text="Load" display-tooltip-when-elided="true" name="LoadButton" style="position: absolute; top: 15px; left: 96px; height: 35px; right: 317px; color: rgb(97, 97, 97);" />
@@ -62,7 +62,7 @@
         </ui:VisualElement>
         <ui:VisualElement name="BottomDivider" style="position: absolute; height: 106px; width: 480px; top: 976px; left: 0; background-color: rgb(51, 51, 51); border-bottom-left-radius: 20px;">
             <ui:Label text="Dragon Clicker" display-tooltip-when-elided="true" name="DragonClickerLabel" style="position: absolute; height: 51px; width: 271px; top: 23px; left: 33px; font-size: 38px; -unity-font-style: italic; color: rgb(255, 255, 255); display: flex; white-space: nowrap; -unity-text-align: middle-left;" />
-            <ui:Label text="v0.01" display-tooltip-when-elided="true" name="VersionLabel" style="position: absolute; height: 21px; width: 46px; top: 43px; left: 310px; font-size: 16px; -unity-font-style: italic; color: rgb(255, 255, 255); display: flex;" />
+            <ui:Label text="v0.1.0" display-tooltip-when-elided="true" name="VersionLabel" style="position: absolute; height: 21px; width: 46px; top: 43px; left: 310px; font-size: 16px; -unity-font-style: italic; color: rgb(255, 255, 255); display: flex;" />
             <ui:Button text="Credits" display-tooltip-when-elided="true" name="CreditsButton" style="position: absolute; top: 34px; left: 380px; -unity-background-image-tint-color: rgb(255, 255, 255); -unity-background-scale-mode: stretch-to-fill; width: 64px; height: 35px; color: rgb(97, 97, 97);" />
         </ui:VisualElement>
         <ui:GroupBox name="Popups" style="height: 1080px; display: none; visibility: visible; width: 1452px; position: absolute; left: -301%;">

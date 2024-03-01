@@ -62,7 +62,6 @@ public class UI : MonoBehaviour
         resetButton = root.Q<Button>("ResetButton");
         koboldsLabel = root.Q<Label>("KoboldsLabel");
 
-
         shopScrollView = root.Q<ScrollView>("ShopScrollView");
         instrumentsBox = root.Q<VisualElement>("InstrumentsBox");
         boughtUpgradesBox = root.Q<VisualElement>("BoughtUpgradesBox");
@@ -141,6 +140,7 @@ public class UI : MonoBehaviour
     {
         foreach (Upgrade u in gs.upgrades.upgradeList)
         {
+            u.UpdateCosts();
             if (u.tier < u.maxTier)
             {
                 if (u.IsNearRequirements(gd) && !u.isInShop) 
@@ -169,7 +169,6 @@ public class UI : MonoBehaviour
         var level = b.Q<Label>("UpgradeLevel");
         var icon = b.Q<VisualElement>("UpgradeIcon");
 
-        u.UpdateCosts();
         u.isInShop = true;
 
         name.text = u.displayName;
