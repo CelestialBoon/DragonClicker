@@ -1,0 +1,3 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:Button display-tooltip-when-elided="true" name="InstrumentButton" style="height: 48px; width: 48px; background-image: url(&apos;project://database/Assets/UI/UI%20Assets/DildoIconRotated.png?fileID=2800000&amp;guid=350fc296728415144a0ca9486ca7d9e8&amp;type=3#DildoIconRotated&apos;); margin-bottom: 3px; margin-top: 3px;" />
+</ui:UXML>

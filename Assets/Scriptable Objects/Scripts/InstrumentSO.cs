@@ -6,6 +6,7 @@ public class InstrumentSO : ScriptableObject
 {
     [EnumNamedArray(typeof(ErogenousType))]
     public float[] effectiveness;
-    public bool bought;
-    public ErogenousType? assigned;
+    public string codeName;
+    public string displayName;
+    public Texture2D cursor;
 }

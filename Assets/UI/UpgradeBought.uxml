@@ -1,0 +1,3 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:Button display-tooltip-when-elided="true" name="UpgradedButton" style="height: 48px; width: 48px; background-image: url(&apos;project://database/Assets/UI/UI%20Assets/PotionPurpleIcon.png?fileID=2800000&amp;guid=e0efa1db67bb162469a48aa8e671048b&amp;type=3#PotionPurpleIcon&apos;); margin-top: 3px; margin-bottom: 3px;" />
+</ui:UXML>

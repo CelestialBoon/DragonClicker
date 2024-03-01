@@ -16,8 +16,10 @@ MonoBehaviour:
   - 1.5
   - 1.5
   - 1.5
-  - 1
-  - 1
-  - 1
-  - 1
-  bought: 0
+  - 0
+  - 0
+  - 0
+  - 0
+  codeName: vibrator
+  displayName: Vibrator
+  cursor: {fileID: 2800000, guid: aa402f31f49eca5479b49166ebb52a9d, type: 3}

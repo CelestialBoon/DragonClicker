@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
@@ -10,67 +11,55 @@ public class GameData
 {
     public ErogenousData[] erogenousDatas;
 
-    public float clickStrength;
-    public float koboldStrength;
-    public float koboldDelay;
-    public int koboldNum;
+    public Dictionary<string, int> boughtUpgrades;
 
-    public float arousal;
-    public float maxArousal;
-    public float decayArousal;
+    public float clickStrength = 1;
+    public float koboldStrength = 0.4f;
+    public float koboldDelay = 3f;
+    public int koboldsBusy = 0;
+    public int koboldsMax = 1;
+    public bool canKoboldsUseInstruments = false;
 
-    public int fluid;
+    public bool[] koboldsToEZ;
+    public string[] instrumentToEz;
+    public Dictionary<string, int> whereInstrument;
 
-    public float buildup;
-    public float ratioBuildup;
-    public float passiveBuildup;
-    public float refractoryBuildup;
-    public float maxBuildup;
+    public float arousal = 0;
+    public float maxArousal = 100;
+    public float decayArousal = 0.03f;
 
-    public float bucket;
-    public float maxBucket;
+    public int cum = 0;
+    public int cumQuality = 0;
+
+    public float buildup = 0;
+    public float arousal2Buildup = 10;
+    public float ratioBuildup = 9f;
+    public float passiveBuildup = 2f;
+    public float refractoryBuildup = 10f;
+    public float maxBuildup = 100;
+
+    public float bucket = 0;
+    public float bucketCapture = 0.3f;
     public BucketState bucketState;
 
-    public float refractoryTime;
-    public float maxRefractoryTime;
+    public float refractoryTime = 0;
+    public float maxRefractoryTime = 4;
     public float refractorySpeed;
 
-    public float orgasmTime;
-    public float maxOrgasmTime;
+    public float orgasmTime = 0;
+    public float maxOrgasmTime = 3;
 
     public int gold;
-    public float goldMultiplier;
-
-    public int bucketUpgradePrice;
-    public int bucketUpgradeLevel;
 
     public GameState gs;
 
     public GameData Initialize(GameState gameState)
     {
         gs = gameState;
+        boughtUpgrades = new Dictionary<string, int>();
 
-        clickStrength = 1;
-        koboldStrength = 0.3f;
-        koboldDelay = 3f;
-        koboldNum = 0;
-
-        maxArousal = 100;
-        decayArousal = 2;
-
-        ratioBuildup = 0.1f;
-        passiveBuildup = 0.1f;
-        refractoryBuildup = 20f;
-        maxBuildup = 100;
-
-        maxBucket = 70;
-
-        maxRefractoryTime = 4;
-        maxOrgasmTime = 3;
-
-        goldMultiplier = 1.05f;
-
-        erogenousDatas = new ErogenousData[Enum.GetNames(typeof(ErogenousType)).Length]; //TODO compile full list of zones
+        int erogenousCount = Enum.GetNames(typeof(ErogenousType)).Length;
+        erogenousDatas = new ErogenousData[erogenousCount];
         erogenousDatas[(int)ErogenousType.COCK] = new ErogenousData(1.5f, 3, 0.2f);
         erogenousDatas[(int)ErogenousType.BALLS] = new ErogenousData(0.5f, 5, 0.8f);
         erogenousDatas[(int)ErogenousType.ANUS] = new ErogenousData(1f, 5, 0.6f);
@@ -79,26 +68,20 @@ public class GameData
         erogenousDatas[(int)ErogenousType.HEAD] = new ErogenousData(0f, 2, 0.5f);
         erogenousDatas[(int)ErogenousType.MOUTH] = new ErogenousData(-1, 5, 0.7f);
 
-        arousal = 0;
-        fluid = 0;
-        buildup = 0;
-        bucket = 0;
-        refractoryTime = 0;
-        orgasmTime = 0;
-        gold = 0;
-
-        bucketUpgradePrice = 100;
-        bucketUpgradeLevel = 1;
+        koboldsToEZ = new bool[erogenousCount];
+        instrumentToEz = new string[erogenousCount];
+        whereInstrument = new Dictionary<string, int>(); //it gets populated only on unlock
 
         bucketState = BucketState.Empty;
         return this;
     }
 
+   
+
     public void Start_()
     {
-        if (bucket >= maxBucket)
-            UpdateBucket(BucketState.Full);
-        else UpdateBucket(BucketState.Empty);
+        if (bucket >= 0) EmptyBucket();
+        UpdateBucket(BucketState.Empty);
     }
 
     public void FixedUpdate_() //formulas to later tune For His Pleasure
@@ -110,13 +93,13 @@ public class GameData
             ErogenousData ed = erogenousDatas[i];
             if (ed.HasKobold && ed.TimeSinceLast > ed.OptimalTime * koboldDelay)
             {
-                gs.erogenousAreas[i].StimulateWithKobold(koboldStrength);
+                gs.erogenousAreas[i].StimulateWithKobold();
             }
         }
 
-        buildup = Mathf.Min(maxBuildup, buildup + (passiveBuildup + arousal * ratioBuildup * Mathf.Pow(arousal / maxArousal, 2)) * Time.fixedDeltaTime);
+        IncreaseBuildup(passiveBuildup * (1 + ratioBuildup * Mathf.Pow(arousal / maxArousal, 2)) / (1+ratioBuildup) * Time.fixedDeltaTime);
 
-        arousal = Mathf.Max(0, arousal - decayArousal * Time.fixedDeltaTime);
+        arousal = Mathf.Max(0, arousal - decayArousal * maxArousal * Time.fixedDeltaTime);
 
         //TODO add timeSinceLast to all the erogenous zones
         int len = Enum.GetNames(typeof(ErogenousType)).Length;
@@ -129,24 +112,38 @@ public class GameData
         }
     }
 
+    internal void BuyUpgrade(Upgrade u)
+    {
+        int prevGold = gold;
+        u.isInShop = false;
+        gold -= u.nextGoldCost;
+        gs.OnGoldChanged.Invoke(prevGold);
+        if(u.IsCumCost())
+        {
+            int prevCum = cum;
+            cum -= u.nextCumCost;
+            gs.OnCumChanged.Invoke(prevCum);
+        }
+        u.effect(u, this);
+        boughtUpgrades.Put(u.codeName, u.tier);
+        u.tier++;
+    }
+
     public void Arouse(float amount)
     {
-        if (orgasmTime > 0) return;
-
-        if (buildup >= maxBuildup) amount *= 5;
-        if (refractoryTime > 0) amount *= 0.2f;
-
         arousal += amount;
-        gs.OnAroused.Invoke(amount);
+        IncreaseBuildup(amount * arousal2Buildup / maxArousal);
 
         if (arousal > maxArousal) gs.OnOrgasm.Invoke();
     }
 
     internal void EmptyBucket()
     {
-        fluid += Mathf.RoundToInt(bucket);
+        int prevCum = cum;
+        cum += Mathf.RoundToInt(bucket);
+        gs.OnCumChanged.Invoke(prevCum);
         bucket = 0;
-        UpdateBucket(BucketState.None);
+        //UpdateBucket(BucketState.None);
     }
     internal void UpdateBucket(BucketState state)
     {
@@ -171,18 +168,13 @@ public class GameData
             if (buildup > 0)
             {
                 buildup -= emptyingPerTick;
-                if (bucket < maxBucket)
-                {
-                    bucket = Mathf.Min(maxBucket, bucket + emptyingPerTick);
-                    if (bucket == maxBucket)
-                    {
-                        UpdateBucket(BucketState.Full);
-                    }
-                }
+                bucket += emptyingPerTick * bucketCapture;
             }
             yield return new WaitForFixedUpdate();
         }
         buildup = 0;
+        EmptyBucket();
+        //UpdateBucket(BucketState.Full);
         //in the second time the arousal starts decreasing
         for (orgasmTime = halfOrgasmTime; orgasmTime > 0; orgasmTime -= Time.fixedDeltaTime)
         {
@@ -211,8 +203,17 @@ public class GameData
 
     internal void sellCum()
     {
-        gold += Mathf.RoundToInt(fluid * goldMultiplier);
-        fluid = 0;
+        int prevGold = gold;
+        int prevCum = cum;
+        gold += Mathf.RoundToInt(cum * Mathf.Pow(2, cumQuality));
+        cum = 0;
+        gs.OnCumChanged.Invoke(prevCum);
+        gs.OnGoldChanged.Invoke(prevGold);
+    }
+
+    internal void IncreaseBuildup(float amount)
+    {
+        buildup = Mathf.Min(maxBuildup, buildup + amount);
     }
 
     internal ErogenousData GetErogenousData(ErogenousType type)
@@ -220,9 +221,30 @@ public class GameData
         return erogenousDatas[(int)type];
     }
 
-    public void upgradeBucket()
+    internal void SwapInstrument(string instrName, int edIndex)
     {
-        maxBucket += 30;
-        bucketUpgradeLevel += 1;
+        DetachInstrument(edIndex);
+        AttachInstrument(instrName, edIndex);
+    }
+
+    internal void AttachInstrument(string instrName, int edIndex)
+    {
+        InstrumentSO instrument = gs.instrumentsDict[instrName];
+        ErogenousData ed = erogenousDatas[edIndex];
+        ed.KoboldInstrument = instrument;
+        instrumentToEz[edIndex] = instrument.codeName;
+        whereInstrument[instrName] = edIndex;
+    }
+
+    internal void DetachInstrument(int index)
+    {
+        ErogenousData ed = erogenousDatas[index];
+        string instrName = ed.KoboldInstrument?.codeName;
+        if (!string.IsNullOrEmpty(instrName))
+        {
+            ed.KoboldInstrument = null;
+            instrumentToEz[index] = null;
+            whereInstrument[instrName] = -1;
+        }
     }
 }

@@ -10,7 +10,8 @@ public class ErogenousArea : MonoBehaviour
     private GameData gd;
     public ErogenousType type;
     public InstrumentSO koboldInstrument;
-    public OnStimulatedEvent OnStimulated = new OnStimulatedEvent();
+    public GameObject koboldAnimation;
+    public Transform textAnchor;
 
     private void Start()
     {
@@ -19,23 +20,27 @@ public class ErogenousArea : MonoBehaviour
         gd = gs.gameData;
     }
 
-    public void StimulateWithKobold(float koboldStrength)
+    public void StimulateWithKobold()
     {
-        ClickData cd = new ClickData() { strength = koboldStrength, instrument = koboldInstrument };
-        Stimulate(cd);
+        Stimulate(gd.koboldStrength, koboldInstrument);
     }
 
-    public void Stimulate(ClickData cd)
+    public void Stimulate(float strength, InstrumentSO instrument)
     {
-        OnStimulated.Invoke(type, cd);
-        float strength = cd.strength;
-        float effectiveness = cd.instrument?.effectiveness[(int)type] ?? 1;
+        float effectiveness = instrument?.effectiveness[(int)type] ?? 1;
         if (effectiveness > 1)
         {
             //use the instrument
             strength *= effectiveness;
         }
-        gd.Arouse(GetArousalIncrease(strength));
+        float arousal = GetArousalIncrease(strength);
+
+        if (gd.orgasmTime > 0) return;
+
+        arousal *= 1 + 4 * Mathf.Pow(gd.buildup / gd.maxBuildup, 5);
+        if (gd.refractoryTime > 0) arousal *= 0.2f;
+
+        gs.OnAroused.Invoke(this, arousal);
     }
 
     public float GetArousalIncrease(float strokeStrength)
@@ -46,7 +51,7 @@ public class ErogenousArea : MonoBehaviour
         float peakStr = ed.PeakStr;
         float totalStrength = strokeStrength * curveCoeff * timeCoeff * peakStr;
         Debug.Log($"Stimulated area {type} with efficiency {timeCoeff:n2}, total strength {totalStrength:n2}");
-        return strokeStrength;
+        return totalStrength;
     }
 
     private float GetTimeCoeff(ErogenousData ed) 
@@ -86,5 +91,3 @@ public record ErogenousData()
     }
 }
 public enum ErogenousType {COCK, BALLS, ANUS, PAW, WING, HEAD, MOUTH}
-
-public class OnStimulatedEvent : UnityEvent<ErogenousType, ClickData> { }

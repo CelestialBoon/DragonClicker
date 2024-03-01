@@ -4,34 +4,61 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
+using System.Linq;
+using TMPro;
 
 //responsibilities of this class:
 //holder of game data and saver/loader and event launcher for it
 //handles menus state machine
 //pauses and unpauses
-public class GameState : MonoBehaviour 
+public class GameState : MonoBehaviour
 {
-    [SerializeField] private ClickData clickData; //TODO very temporary, to be reworked once kobolds and tools are introduced
+    public static GameState Instance;
+
+    [SerializeField] public Upgrades upgrades;
 
     public GameData gameData;
 
     [NonSerialized] public ErogenousArea[] erogenousAreas;
 
-    public UnityEvent OnOrgasm = new UnityEvent();
-    public UnityEvent OnRefractory = new UnityEvent();
-    public UnityEvent<float> OnAroused = new UnityEvent<float>();
-    public UnityEvent<BucketState> OnBucketStateChanged = new UnityEvent<BucketState>();
-    public UnityEvent OnGameDataUpdated = new UnityEvent();
+    [SerializeField] List<IconSO> iconsList;
+    public Dictionary<string, Sprite> iconsDict;
+
+    public List<InstrumentSO> instrumentsList;
+    public Dictionary<string, InstrumentSO> instrumentsDict; //this one is filled in the inspector
+    public string instrumentInHand;
+    public TMPro.TextMeshPro counterTemplate;
+
+    public UnityEvent OnOrgasm = new();
+    public UnityEvent OnRefractory = new();
+    public UnityEvent<ErogenousArea, float> OnAroused = new();
+    public UnityEvent<BucketState> OnBucketStateChanged = new();
+    public UnityEvent OnGameDataLoaded = new();
+    public UnityEvent<ErogenousArea> OnKoboldReassigned = new();
+    public UnityEvent<int> OnGoldChanged = new();
+    public UnityEvent<int> OnCumChanged = new();
+    public UnityEvent OnReset = new();
 
     private string savePath;
 
     private void Awake()
     {
+        Instance = this;
         erogenousAreas = new ErogenousArea[Enum.GetNames(typeof(ErogenousType)).Length];
     }
 
     private void Start()
     {
+        iconsDict = new();
+        foreach (IconSO iconSO in iconsList)
+        {
+            iconsDict.Add(iconSO.codeName, iconSO.sprite);
+        }
+        instrumentsDict = new();
+        foreach(InstrumentSO instrument in instrumentsList)
+        {
+            instrumentsDict.Add(instrument.codeName, instrument);
+        }
         gameData = new GameData().Initialize(this);
         try
         {
@@ -45,6 +72,19 @@ public class GameState : MonoBehaviour
         }
         OnOrgasm.AddListener(() => StartCoroutine(gameData.Orgasm()));
         OnRefractory.AddListener(() => StartCoroutine(gameData.RefractoryPeriod()));
+        OnAroused.AddListener((ea, str) => {
+            gameData.Arouse(str);
+            CreatePleasureCounter(ea, str);
+        });
+    }
+
+    private void CreatePleasureCounter(ErogenousArea ea, float strength)
+    {
+        GameObject go = Instantiate(counterTemplate.gameObject);
+        go.transform.SetParent(ea.textAnchor.transform);
+        go.transform.localPosition = Vector3.zero;
+        TextMeshPro text = go.GetComponent<TextMeshPro>();
+        text.text = $"+{strength:n1}";
     }
 
     void Update()
@@ -57,11 +97,30 @@ public class GameState : MonoBehaviour
 
             ErogenousArea ea = hit != default ? hit.collider.GetComponent<ErogenousArea>() : null;
             if(ea != null) {
-                if (leftButton) ea.Stimulate(clickData);
+                if (leftButton) ea.Stimulate(gameData.clickStrength, GetInstrumentInHand());
                 else if(rightButton)
                 {
                     int type = (int)ea.type;
-                    gameData.erogenousDatas[type].HasKobold = !gameData.erogenousDatas[type].HasKobold;
+                    if(! string.IsNullOrEmpty(instrumentInHand) && gameData.erogenousDatas[type].HasKobold && gameData.canKoboldsUseInstruments) {
+                        //add or swap instruments
+                        gameData.SwapInstrument(instrumentInHand, type);
+                    } else { //add/remove kobolds
+                        if (gameData.erogenousDatas[type].HasKobold) {
+                            gameData.erogenousDatas[type].HasKobold = false;
+                            gameData.koboldsBusy--;
+                            gameData.DetachInstrument(type);
+
+                            if (ea.koboldAnimation != null) {
+                                ea.koboldAnimation.SetActive(false); }
+                            OnKoboldReassigned.Invoke(ea);
+                        } else if (gameData.koboldsBusy < gameData.koboldsMax) {
+                            gameData.erogenousDatas[type].HasKobold = true;
+                            gameData.koboldsBusy++;
+                            if (ea.koboldAnimation != null) {
+                                ea.koboldAnimation.SetActive(true); }
+                            OnKoboldReassigned.Invoke(ea);
+                        }
+                    }
                 }
             }
         }
@@ -72,11 +131,23 @@ public class GameState : MonoBehaviour
         gameData.FixedUpdate_();
     }
 
-    internal ClickData GetManualClickData(ErogenousType type)
+    private InstrumentSO GetInstrumentInHand()
     {
-        return clickData; //TODO this is a stub for now
+        if (string.IsNullOrEmpty(instrumentInHand)) return null;
+        else return instrumentsDict[instrumentInHand];
     }
 
+    internal void ChangeInstrument(string instrName)
+    {
+        if (instrumentInHand == instrName || string.IsNullOrEmpty(instrName)) {
+            instrumentInHand = null;
+            Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+        } else {
+            instrumentInHand = instrName;
+            var instrument = instrumentsDict[instrName];
+            Cursor.SetCursor(instrument.cursor, new Vector2(47,14), CursorMode.Auto);
+        }
+    }
 
     public void PauseGame(bool isPause)
     {
@@ -86,31 +157,40 @@ public class GameState : MonoBehaviour
 
     public bool IsPaused() { return Time.fixedDeltaTime != 0; }
 
-    //here goes loading and saving
     public void SaveGame()
     {
+        /*
         //gather all data and write to file
         gameData.gs = null;
-        File.WriteAllText(savePath, JsonUtility.ToJson(gameData));
+        gameData.koboldsToEZ = gameData.erogenousDatas.Select(ed => ed.HasKobold).ToArray();
+        gameData.instrumentToEz = gameData.erogenousDatas.Select(ed => ed.KoboldInstrument?.codeName).ToArray();
+        //File.WriteAllText(savePath, System.Text.Json. (gameData));
         gameData.gs = this;
+        */
     }
     public void LoadGame()
     {
-        GameData newGameData = null;
+        /*
         //find path
-        if (File.Exists(savePath))
-        {
-            //take the json and create a new gamedata and replace the old one
-            newGameData = JsonUtility.FromJson<GameData>(File.ReadAllText(savePath));
+        if (!File.Exists(savePath)) return;
+        //take the json and create a new gamedata and replace the old one
+        JsonUtility.FromJsonOverwrite(File.ReadAllText(savePath), gameData);
+        gameData.gs = this;
+        for(int i = 0; i<erogenousAreas.Length; i++) {
+            ErogenousData ed = gameData.erogenousDatas[i];
+            ed.HasKobold = gameData.koboldsToEZ[i];
+            string instr = gameData.instrumentToEz[i];
+            if(!string.IsNullOrEmpty(instr)) {
+                ed.KoboldInstrument = instruments[instr];
+            }
         }
-
-        if(newGameData == null)
+        foreach(var kv in gameData.boughtUpgrades)
         {
-            //initialize gamedata if path not found
-            newGameData = new GameData().Initialize(this);
+            upgrades.upgradeList[upgrades.nameDict[kv.Key]].tier = kv.Value;
+            Debug.Log("Aaaa");
         }
-        gameData.CopyProperties(newGameData);
-        OnGameDataUpdated.Invoke();
+        OnGameDataLoaded.Invoke();
+        */
     }
 }
 
